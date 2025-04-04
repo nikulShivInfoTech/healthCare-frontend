@@ -2,7 +2,6 @@ import { createRouter, createWebHistory } from "vue-router";
 import HealthManagement from "../components/HealthManagement.vue";
 import NotFound from "../components/NotFound.vue";
 import ActivityReports from "../components/ActivityReports.vue";
-import Layout from "../components/Layout.vue";
 import Profile from "../components/Profile.vue";
 const routes = [
   {
@@ -11,13 +10,6 @@ const routes = [
     component: HealthManagement,
     meta: { requiresAuth: true },
   },
-  {
-    path: "/layout",
-    name: "Layout",
-    component: Layout,
-    meta: { requiresAuth: true },
-  },
-
   {
     path: "/Activity",
     name: "Activity",

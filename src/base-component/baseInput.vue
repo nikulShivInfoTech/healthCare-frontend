@@ -1,7 +1,5 @@
 <script setup>
-import { defineProps, defineEmits, ref, computed, watch } from "vue";
-import { useVuelidate } from "@vuelidate/core";
-import { required, email, minLength, helpers } from "@vuelidate/validators";
+import { defineProps, defineEmits, ref } from "vue";
 
 const props = defineProps({
   classes: {
@@ -16,27 +14,11 @@ const props = defineProps({
     type: String,
     default: "",
   },
-  fieldName: {
-    type: String,
-    default: "",
+  errorMessages: {
+    type: Array,
+    default: () => [],
   },
-  rules: {
-    type: Object,
-    default: () => ({}),
-  },
-  isRequired: {
-    type: Boolean,
-    default: false,
-  },
-  minLength: {
-    type: Number,
-    default: 0,
-  },
-  isEmail: {
-    type: Boolean,
-    default: false,
-  },
-  isSubmitted: {
+  error: {
     type: Boolean,
     default: false,
   },
@@ -44,55 +26,9 @@ const props = defineProps({
 
 const emit = defineEmits(["update:modelValue"]);
 
-const state = ref({
-  value: props.modelValue,
-});
-
-const validations = computed(() => {
-  const rules = { ...props.rules };
-
-  if (props.isRequired) {
-    rules.required = helpers.withMessage(
-      `${props.fieldName} is required`,
-      required
-    );
-  }
-
-  if (props.isEmail) {
-    rules.email = helpers.withMessage(
-      "Please enter a valid email address",
-      email
-    );
-  }
-
-  return {
-    value: rules,
-  };
-});
-
-const v$ = useVuelidate(validations, state);
-
-watch(
-  () => props.isSubmitted,
-  (newVal) => {
-    if (newVal) {
-      v$.value.$touch();
-    }
-  }
-);
-
 const updateValue = (value) => {
-  state.value.value = value;
   emit("update:modelValue", value);
-  v$.value.$touch();
 };
-
-const errorMessages = computed(() => {
-  if (v$.value.$error) {
-    return v$.value.$errors.map((error) => error.$message);
-  }
-  return [];
-});
 </script>
 
 <template>
@@ -101,11 +37,10 @@ const errorMessages = computed(() => {
       :class="props.classes"
       :label="props.label"
       variant="outlined"
-      class=""
-      :model-value="state.value"
+      :model-value="props.modelValue"
       @update:modelValue="updateValue"
       :error-messages="errorMessages"
-      :error="v$.value.$error"
+      :error="error"
     />
   </div>
 </template>
