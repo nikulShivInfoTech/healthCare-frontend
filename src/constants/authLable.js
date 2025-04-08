@@ -1,3 +1,5 @@
+import Registration from "../components/Registration.vue";
+
 export const AUTH_LABELS = {
     login: 'Login',
     register: 'Register',
@@ -19,4 +21,5 @@ export const AUTH_LABELS = {
     alertInterval: 'Alert Interval',
     submit: 'Submit',
     alreadyHaveAccount: 'Already have an account?',
+    registration: 'Registration'
 }

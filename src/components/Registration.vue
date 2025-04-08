@@ -182,7 +182,9 @@ const handleSubmit = async () => {
     <v-container>
       <div class="d-flex justify-end">
         <div class="register-form">
-          <h5 class="text-h5 mb-6 bg-heading">Registration</h5>
+          <h5 class="text-h5 mb-6 bg-heading">
+            {{ AUTH_LABELS.registration }}
+          </h5>
           <v-form @submit.prevent="handleSubmit">
             <v-row>
               <v-col cols="12" md="6">
