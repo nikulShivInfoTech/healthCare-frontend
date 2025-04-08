@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import axios from "axios";
 import { BASE_URL, API_ENDPOINTS } from "../api/EndPoint";
+import { StatusCodes } from "http-status-codes";
 
 interface LoginResponse {
   statusCode: number;
@@ -28,14 +29,14 @@ export const useLoginStore = defineStore("login", {
           credentials
         );
 
-        if (response.data.statusCode === 200) {
+        if (response.data.statusCode === StatusCodes.OK) {
           localStorage.setItem("token", response.data.data?.token || "");
           return response.data;
         } else {
           throw new Error(response.data.message);
         }
       } catch (error: any) {
-        this.error = error.response?.data?.message || "Login failed";
+        this.error = error.response?.data?.message;
         throw error;
       } finally {
         this.isLoading = false;

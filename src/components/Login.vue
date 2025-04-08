@@ -8,6 +8,8 @@ import { useLoginStore } from "../stores/login";
 import { useSnackbarStore } from "../stores/snackbar";
 import { MESSAGE } from "../constants/communMessage";
 import { AUTH_LABELS } from "../constants/authLable";
+import { StatusCodes } from "http-status-codes";
+import { handleApiError } from "../commonFunctions/commonFunction";
 
 const router = useRouter();
 const loginStore = useLoginStore();
@@ -51,19 +53,12 @@ const handleSubmit = async () => {
   try {
     const loginResponse = await loginStore.login(formData.value);
 
-    if (loginResponse.statusCode === 200) {
-      snackbarStore.showMessage(loginResponse.message || "Login successful!");
+    if (loginResponse.statusCode === StatusCodes.OK) {
+      snackbarStore.showMessage(loginResponse.message);
       router.push("/health-management");
     }
   } catch (error: any) {
-    if (error.response?.data) {
-      const errorData = error.response.data;
-      if (Array.isArray(errorData.message)) {
-        snackbarStore.showMessage(errorData.message[0], "error");
-      } else if (errorData.message) {
-        snackbarStore.showMessage(errorData.message, "error");
-      }
-    }
+    handleApiError(error);
   } finally {
     isFormSubmitted.value = false;
   }

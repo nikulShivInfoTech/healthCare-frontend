@@ -15,6 +15,8 @@ import {
 import BaseSelect from "../base-component/BaseSelect.vue";
 import { MESSAGE } from "../constants/communMessage";
 import { AUTH_LABELS } from "../constants/authLable";
+import { StatusCodes } from "http-status-codes";
+import { handleApiError } from "../commonFunctions/commonFunction";
 
 const router = useRouter();
 const registrationStore = useRegistrationStore();
@@ -156,21 +158,14 @@ const handleSubmit = async () => {
   try {
     const register = await registrationStore.register(formDataToSend);
 
-    if (register.statusCode === 201) {
+    if (register.statusCode === StatusCodes.CREATED) {
       snackbarStore.showMessage(register.message);
       router.push("/login");
-    } else if (register.statusCode === 409) {
+    } else if (register.statusCode === StatusCodes.CONFLICT) {
       snackbarStore.showMessage(register.message, "error");
     }
   } catch (error: any) {
-    if (error.response?.data) {
-      const errorData = error.response.data;
-      if (Array.isArray(errorData.message)) {
-        snackbarStore.showMessage(errorData.message[0], "error");
-      } else if (errorData.message) {
-        snackbarStore.showMessage(errorData.message, "error");
-      }
-    }
+    handleApiError(error);
   } finally {
     isFormSubmitted.value = false;
   }

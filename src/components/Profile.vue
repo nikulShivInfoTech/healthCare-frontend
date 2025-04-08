@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { onMounted, ref, reactive } from "vue";
+import { onMounted, reactive } from "vue";
 import { useProfileStore } from "../stores/profile";
 import { storeToRefs } from "pinia";
 import { useVuelidate } from "@vuelidate/core";
-import { required, email, helpers } from "@vuelidate/validators";
+import { required, helpers } from "@vuelidate/validators";
 import BaseInput from "../base-component/BaseInput.vue";
 import BaseSelect from "../base-component/BaseSelect.vue";
-import { MESSAGE, MESSAGE_PROFILE } from "../constants/communMessage";
+import { MESSAGE, TEXT_PROFILE } from "../constants/communMessage";
 import {
   TimeRangesForNotification,
   Lifestyle,
@@ -14,6 +14,7 @@ import {
   Gender,
 } from "../enums/healthEnums";
 import { AUTH_LABELS } from "../constants/authLable";
+import { StatusCodes } from "http-status-codes";
 
 const profileStore = useProfileStore();
 const { userProfile, loading, error, isEditing } = storeToRefs(profileStore);
@@ -57,7 +58,7 @@ interface EditFormData {
   weight: number;
   age: number;
   calories_intake: number;
-  notification_time: string;
+  notification_time: TimeRangesForNotification;
   water_intake: number;
   lifestyle: string;
   existing_diseases: string;
@@ -71,7 +72,7 @@ const editFormData = reactive<EditFormData>({
   weight: 0,
   age: 0,
   calories_intake: 0,
-  notification_time: "",
+  notification_time: TimeRangesForNotification.H12,
   water_intake: 0,
   lifestyle: "",
   existing_diseases: "",
@@ -192,9 +193,13 @@ onMounted(async () => {
 const handleSubmit = async () => {
   v$.value.$touch();
   if (v$.value.$invalid) return;
+  const formDataToSend: any = {
+    ...editFormData,
+    notification_time: String(editFormData.notification_time),
+  };
 
-  const response = await profileStore.updateProfile(editFormData);
-  if (response?.statusCode === 202) {
+  const response = await profileStore.updateProfile(formDataToSend);
+  if (response?.statusCode === StatusCodes.ACCEPTED) {
     await profileStore.fetchUserProfile();
   }
 };
@@ -208,9 +213,7 @@ const handleSubmit = async () => {
           class="d-flex justify-space-between align-center bg-white py-5 px-8 rounded-lg mb-2"
         >
           <h1 class="text-h5">
-            {{
-              isEditing ? MESSAGE_PROFILE.editProfile : MESSAGE_PROFILE.profile
-            }}
+            {{ isEditing ? TEXT_PROFILE.editProfile : TEXT_PROFILE.profile }}
           </h1>
           <v-btn
             color="primary"
@@ -220,9 +223,7 @@ const handleSubmit = async () => {
             @click="profileStore.toggleEditMode()"
             :disabled="loading"
           >
-            {{
-              isEditing ? MESSAGE_PROFILE.cancel : MESSAGE_PROFILE.editProfile
-            }}
+            {{ isEditing ? TEXT_PROFILE.cancel : TEXT_PROFILE.editProfile }}
           </v-btn>
         </div>
 
@@ -232,14 +233,14 @@ const handleSubmit = async () => {
             color="primary"
           ></v-progress-circular>
           <div class="mt-2">
-            {{ MESSAGE_PROFILE.loading }}
+            {{ TEXT_PROFILE.loading }}
           </div>
         </v-card>
 
         <v-card v-else-if="error" class="pa-4 text-center error-card">
           <v-icon color="error" size="40">mdi-alert-circle</v-icon>
           <div class="mt-2">
-            {{ MESSAGE_PROFILE.apiFailed }}
+            {{ TEXT_PROFILE.apiFailed }}
           </div>
           <v-btn
             color="primary"
@@ -298,7 +299,7 @@ const handleSubmit = async () => {
                 </v-col>
                 <v-col cols="12" md="4">
                   <BaseInput
-                    v-model="editFormData.age"
+                    v-model.number="editFormData.age"
                     :label="AUTH_LABELS.age"
                     type="number"
                     :error="v$.age.$error"
@@ -333,7 +334,7 @@ const handleSubmit = async () => {
 
                 <v-col cols="12" md="4">
                   <BaseInput
-                    v-model="editFormData.calories_intake"
+                    v-model.number="editFormData.calories_intake"
                     :label="AUTH_LABELS.caloriesGoal"
                     type="number"
                     :error="v$.calories_intake.$error"
@@ -345,7 +346,7 @@ const handleSubmit = async () => {
                 </v-col>
                 <v-col cols="12" md="4">
                   <BaseInput
-                    v-model="editFormData.water_intake"
+                    v-model.number="editFormData.water_intake"
                     :label="AUTH_LABELS.waterGoal + ' (liters)'"
                     type="number"
                     :error="v$.water_intake.$error"
@@ -404,7 +405,7 @@ const handleSubmit = async () => {
                   min-width="200"
                   rounded
                 >
-                  {{ MESSAGE_PROFILE.update }}
+                  {{ TEXT_PROFILE.update }}
                 </v-btn>
               </div>
             </v-form>

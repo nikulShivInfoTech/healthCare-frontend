@@ -5,7 +5,7 @@ export const MESSAGE = {
     EMAIL_VALIDATE: 'Enter a valid email'
 }
 
-export const MESSAGE_PROFILE = {
+export const TEXT_PROFILE = {
     profile: 'User Profile',
     updateProfile: 'Update Profile',
     editProfile: 'Edit Profile',
