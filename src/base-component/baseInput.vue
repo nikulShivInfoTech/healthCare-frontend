@@ -11,8 +11,16 @@ const props = defineProps({
     default: "",
   },
   modelValue: {
-    type: String,
+    type: [String, Number],
     default: "",
+  },
+  type: {
+    type: String,
+    default: "text",
+  },
+  inputSize: {
+    type: String,
+    default: "compact",
   },
   errorMessages: {
     type: Array,
@@ -22,13 +30,20 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  disabled: {
+    type: Boolean,
+    default: false,
+  },
 });
 
-const emit = defineEmits(["update:modelValue"]);
-
+const emit = defineEmits(["update:modelValue", "blur"]);
 const updateValue = (value) => {
   emit("update:modelValue", value);
 };
+
+defineOptions({
+  name: "BaseInput",
+});
 </script>
 
 <template>
@@ -38,9 +53,13 @@ const updateValue = (value) => {
       :label="props.label"
       variant="outlined"
       :model-value="props.modelValue"
+      :type="props.type"
       @update:modelValue="updateValue"
+      @blur="$emit('blur')"
       :error-messages="errorMessages"
       :error="error"
+      :density="inputSize"
+      :disabled="disabled"
     />
   </div>
 </template>
