@@ -1,32 +1,33 @@
 <script setup>
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import { ref } from "vue";
 
 const drawer = ref(true);
-
+const drawerHover = ref(false);
 const router = useRouter();
+const route = useRoute();
 
 const navItems = [
   {
     icon: "mdi-monitor-account",
     title: "Health Management",
-    value: "/",
+    value: "/health-management",
   },
   {
     icon: "mdi-chart-line",
     title: "Activity Reports",
-    value: "/Activity",
+    value: "/activity-reports",
   },
   {
     icon: "mdi-face-man-shimmer",
     title: "Profile",
-    value: "/Profile",
+    value: "/profile",
   },
 ];
 
 const handleLogOut = () => {
   localStorage.removeItem("token");
-  router.push({ name: "Login" });
+  router.push("/login");
 };
 
 const profileItems = [
@@ -45,22 +46,27 @@ const handleNavClick = (item) => {
 <template>
   <v-card>
     <v-layout>
-      <v-app-bar color="" prominent>
+      <v-app-bar color="#ECFBF6" height="64">
         <v-app-bar-nav-icon
           color="primary"
-          class="d-flex justify-center pe-5"
+          class="d-flex justify-center"
           variant="text"
           @click.stop="drawer = !drawer"
         ></v-app-bar-nav-icon>
-        <img class="width-logo" src="/public/logo.png" alt="" />
-        <v-toolbar-title class="">Health Care</v-toolbar-title>
+
+        <v-toolbar-title>
+          <div class="d-flex align-center">
+            <img src="/logo.png" alt="Health Care Logo" class="app-logo" />
+            <span class="ml-3 app-title">Health Care</span>
+          </div>
+        </v-toolbar-title>
 
         <v-spacer></v-spacer>
         <v-menu>
           <template v-slot:activator="{ props }">
             <v-btn
               color="primary"
-              icon="mdi-dots-vertical pe-5"
+              icon="mdi-dots-vertical"
               variant="text"
               v-bind="props"
             ></v-btn>
@@ -84,48 +90,63 @@ const handleNavClick = (item) => {
         </v-menu>
       </v-app-bar>
 
-      <v-navigation-drawer v-if="drawer" expand-on-hover rail v-model="drawer">
-        <v-list class="center-image">
-          <v-list-item text-center class="drawer-logo">
+      <v-navigation-drawer
+        v-model="drawer"
+        :rail="!drawerHover"
+        @mouseenter="drawerHover = true"
+        @mouseleave="drawerHover = false"
+        permanent
+        border="end"
+        class="custom-drawer"
+      >
+        <div class="sidebar-content">
+          <!-- Logo Section -->
+          <div class="logo-wrapper pa-4">
             <img
-              :class="drawerHover ? 'img1' : 'img2'"
               :src="
                 drawerHover
                   ? 'https://e-commerce-six-livid-87.vercel.app/static/media/logo-light.b1c70f9820f852e7b372.png'
                   : 'https://e-commerce-six-livid-87.vercel.app/static/media/logo-sm.3076a99ed30444af5790.png'
               "
-              alt="Logo"
+              alt="Shiv Infotech"
               class="logo-image"
-              width="30px"
+              :style="{ width: drawerHover ? '150px' : '35px' }"
             />
-          </v-list-item>
-        </v-list>
+          </div>
 
-        <v-divider></v-divider>
+          <v-divider class="my-2 custom-divider"></v-divider>
 
-        <v-list density="compact" nav>
-          <v-list-item
-            v-for="(item, index) in navItems"
-            :key="index"
-            :prepend-icon="item.icon"
-            :title="item.title"
-            :value="item.value"
-            @click="handleNavClick(item)"
-          >
-          </v-list-item>
-        </v-list>
+          <!-- Navigation Items -->
+          <v-list nav density="compact" class="pa-2">
+            <v-list-item
+              v-for="(item, index) in navItems"
+              :key="index"
+              :value="item.value"
+              :prepend-icon="item.icon"
+              :title="item.title"
+              @click="handleNavClick(item)"
+              class="mb-3"
+              :active="route.path === item.value"
+              :class="{ 'v-list-item--active': route.path === item.value }"
+              rounded="lg"
+            >
+            </v-list-item>
+          </v-list>
+        </div>
       </v-navigation-drawer>
 
-      <v-main>
-        <v-card-text>
-          <router-view></router-view>
+      <!-- Main content area -->
+      <v-main style="min-height: 100vh">
+        <v-card-text class="pa-0">
+          <slot></slot>
         </v-card-text>
       </v-main>
     </v-layout>
   </v-card>
   <v-footer
-    color="#151529"
-    class="align-center justify-space-between d-flex footer text-grey"
+    border
+    color="#8BC9C5"
+    class="align-center justify-space-between d-flex footer text-black"
   >
     <div>
       <p>© 2024 Shivinfotech.</p>
@@ -137,54 +158,67 @@ const handleNavClick = (item) => {
 </template>
 
 <style scoped>
-.v-toolbar__content > .v-btn:first-child {
-  padding-left: 18px;
-  margin-inline-start: 4px;
+.sidebar-content {
+  background-color: #ecfbf6;
+  height: 100%;
+  color: black;
 }
 
-.width-logo {
-  width: 100px;
-  padding: 10px 0px 10px 10px;
+.logo-wrapper {
+  display: flex;
+  align-items: center;
+  height: 64px;
+  padding-left: 12px;
+  justify-content: center;
 }
 
-.v-toolbar__content > .v-btn:last-child {
-  padding-left: 18px;
-  margin-inline-end: 4px;
+.logo-image {
+  transition: all 0.3s ease;
 }
 
-.white >>> .Nopading {
-  padding: 0px !important;
+.v-navigation-drawer {
+  width: 70px !important;
+  transition: width 0.3s ease;
 }
 
-.customBtn {
-  width: 100px !important;
+.v-navigation-drawer:hover {
+  width: 250px !important;
 }
 
-::v-deep(.v-list-item__content) {
-  align-self: center;
-  grid-area: content;
-  overflow: visible !important;
+:deep(.v-list-item) {
+  min-height: 44px;
+  margin-bottom: 4px;
+  border-radius: 8px;
 }
 
-::v-deep(.mdi-view-dashboard, .mdi-package-variant, .mdi-shape) {
-  left: 6px !important;
+:deep(.v-list-item--active) {
+  background-color: rgba(255, 255, 255, 0.1) !important;
 }
 
-::v-deep(.mdi-package-variant, .mdi-shape) {
-  left: 6px !important;
+:deep(.v-list-item:hover) {
+  background-color: rgba(255, 255, 255, 0.1) !important;
 }
 
-::v-deep(.mdi-shape) {
-  left: 6px !important;
+:deep(.v-list-item__prepend) {
+  padding-right: 0px;
+}
+
+:deep(.v-list-item__content) {
+  opacity: 1 !important;
+  font-size: 14px;
 }
 
 .footer {
   position: fixed;
   bottom: 0;
-  width: 100vw;
+  width: 100%;
   padding-left: 2rem;
   font-size: 13px;
-  z-index: -0;
+  z-index: 0;
+}
+
+.customBtn {
+  width: 100px !important;
 }
 
 @media (max-width: 1279px) {
@@ -200,36 +234,35 @@ const handleNavClick = (item) => {
   }
 }
 
-.v-card-text {
-  padding: 0px !important;
+.custom-drawer {
+  border-color: #8bc9c5 !important;
+  border-width: 0 2px 0 0 !important;
 }
 
-::v-deep(.v-navigation-drawer__content) {
-  background-color: #151529;
-  color: #fff;
+.custom-divider {
+  border-color: #87c7c2 !important;
+  opacity: 1 !important;
 }
 
-.drawer-logo img {
-  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-::v-deep(.v-navigation-drawer) {
-  width: 65px;
-}
-
-.v-navigation-drawer:hover .drawer-logo img {
-  width: 100px;
-  content: url("https://e-commerce-six-livid-87.vercel.app/static/media/logo-light.b1c70f9820f852e7b372.png");
-}
-.center-image {
+.app-logo {
+  height: 45px;
+  width: auto;
+  object-fit: contain;
   display: flex;
-  justify-content: center;
   align-items: center;
-  flex-direction: column;
 }
-.v-navigation-drawer {
-  width: 70px !important;
-}
-.v-navigation-drawer:hover {
-  width: 250px !important;
+
+.app-title {
+  font-size: 1.25rem;
+  font-weight: 500;
+  line-height: 24px;
+  display: flex;
+  align-items: center;
 }
 </style>
+
+<script>
+export default {
+  name: "Layout",
+};
+</script>

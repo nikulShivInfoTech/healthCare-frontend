@@ -1,8 +1,8 @@
-
 import axios from "axios";
+import { BASE_URL } from "./EndPoint";
 
 export const axiosApiClient = axios.create({
-  baseURL: "",
+  baseURL: BASE_URL,
 });
 
 axiosApiClient.interceptors.request.use(
