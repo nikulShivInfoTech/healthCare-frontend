@@ -27,7 +27,7 @@ const navItems = [
 
 const handleLogOut = () => {
   localStorage.removeItem("token");
-  router.push("/register");
+  router.push("/login");
 };
 
 const profileItems = [
